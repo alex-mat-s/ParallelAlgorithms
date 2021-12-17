@@ -38,6 +38,8 @@ int main(int argc, char* argv[]){
     }
 
     cout << "Max element: " << max_val << endl;
-    
+
+    delete [] v;
+
     return 0;
 }
