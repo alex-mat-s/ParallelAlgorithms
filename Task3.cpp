@@ -14,11 +14,22 @@ void zero_init_matrix(int** matrix, int n){
 
 int matmul_ijk(int size, int** a, int** b, int** c){
     int i, j, k;
-    clock_t t;
+    double t1, t;
+
+    t1 = omp_get_wtime();
+    for (i = 0; i < size; i++){
+        for (j = 0; j < size; j++){
+            for (k = 0; k < size; k++){
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+                //cout << "Thread: " << omp_get_thread_num() << endl;
+            }
+        }
+    }
+
+    t1 = omp_get_wtime() - t1;
 
     for (unsigned int nthreads = 1; nthreads <= 10; nthreads++){
-        
-        t = clock();
+        t = omp_get_wtime();
         #pragma omp parallel num_threads(nthreads) shared(size) private(i,j,k)
         {
         #pragma omp for collapse(3) schedule(static) 
@@ -31,9 +42,10 @@ int matmul_ijk(int size, int** a, int** b, int** c){
                 }
             }
         }
-
-        t = clock() - t;
-        cout << "The number of threads: " << nthreads << " Time: " << (double)t / CLOCKS_PER_SEC << endl;
+        
+        t = omp_get_wtime() - t;
+    
+        cout << "The number of threads: " << nthreads << "\tTime: " << t << "\tEfficicency: " << t1 / t << endl;
         // cout << "3: " << (double)t / CLOCKS_PER_SEC << endl;
     }
     return 0;
@@ -41,11 +53,22 @@ int matmul_ijk(int size, int** a, int** b, int** c){
 
 int matmul_jki(int size, int** a, int** b, int** c){
     int i, j, k;
-    clock_t t;
+    double t1, t;
+
+    t1 = omp_get_wtime();
+    for (j = 0; j < size; j++){
+        for (k = 0; k < size; k++){
+            for (i = 0; i < size; i++){
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+                //cout << "Thread: " << omp_get_thread_num() << endl;
+            }
+        }
+    }
+
+    t1 = omp_get_wtime() - t1;
 
     for (unsigned int nthreads = 1; nthreads <= 10; nthreads++){
-        
-        t = clock();
+        t = omp_get_wtime();
         #pragma omp parallel num_threads(nthreads) shared(size) private(i,j,k)
         {
         #pragma omp for collapse(3) schedule(static) 
@@ -58,9 +81,10 @@ int matmul_jki(int size, int** a, int** b, int** c){
                 }
             }
         }
-
-        t = clock() - t;
-        cout << "The number of threads: " << nthreads << " Time: " << (double)t / CLOCKS_PER_SEC << endl;
+        
+        t = omp_get_wtime() - t;
+    
+        cout << "The number of threads: " << nthreads << "\tTime: " << t << "\tEfficicency: " << t1 / t << endl;
         // cout << "3: " << (double)t / CLOCKS_PER_SEC << endl;
     }
     return 0;
@@ -68,11 +92,22 @@ int matmul_jki(int size, int** a, int** b, int** c){
 
 int matmul_ikj(int size, int** a, int** b, int** c){
     int i, j, k;
-    clock_t t;
+    double t1, t;
+
+    t1 = omp_get_wtime();
+    for (i = 0; i < size; i++){
+        for (k = 0; k < size; k++){
+            for (j = 0; j < size; j++){
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+                //cout << "Thread: " << omp_get_thread_num() << endl;
+            }
+        }
+    }
+
+    t1 = omp_get_wtime() - t1;
 
     for (unsigned int nthreads = 1; nthreads <= 10; nthreads++){
-        
-        t = clock();
+        t = omp_get_wtime();
         #pragma omp parallel num_threads(nthreads) shared(size) private(i,j,k)
         {
         #pragma omp for collapse(3) schedule(static) 
@@ -83,11 +118,12 @@ int matmul_ikj(int size, int** a, int** b, int** c){
                         //cout << "Thread: " << omp_get_thread_num() << endl;
                     }
                 }
-            }
+    }       
         }
-
-        t = clock() - t;
-        cout << "The number of threads: " << nthreads << " Time: " << (double)t / CLOCKS_PER_SEC << endl;
+        
+        t = omp_get_wtime() - t;
+    
+        cout << "The number of threads: " << nthreads << "\tTime: " << t << "\tEfficicency: " << t1 / t << endl;
         // cout << "3: " << (double)t / CLOCKS_PER_SEC << endl;
     }
     return 0;
@@ -116,18 +152,58 @@ int main(int argc, char* argv[]){
         }
     }
 
+
+    // for (unsigned int i = 0; i < N; i++){
+    //     for (unsigned int j = 0; j < N; j++){
+    //         cout << a[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
+
+    // for (unsigned int i = 0; i < N; i++){
+    //     for (unsigned int j = 0; j < N; j++){
+    //         cout << b[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
+
+
     cout << "IJK" << endl;
     zero_init_matrix(c, N);
     matmul_ijk(N, a, b, c);
     
+    // for (unsigned int i = 0; i < N; i++){
+    //     for (unsigned int j = 0; j < N; j++){
+    //         cout << c[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+
     cout << "JKI" << endl;
     zero_init_matrix(c, N);
     matmul_jki(N, a, b, c);
     
+    // for (unsigned int i = 0; i < N; i++){
+    //     for (unsigned int j = 0; j < N; j++){
+    //         cout << c[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+
     cout << "IKJ" << endl;
     zero_init_matrix(c, N);
     matmul_ikj(N, a, b, c);
   
+    // for (unsigned int i = 0; i < N; i++){
+    //     for (unsigned int j = 0; j < N; j++){
+    //         cout << c[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+
+
     for (unsigned int i = 0; i < N; i++)
         delete[]a[i];
     delete [] a;
